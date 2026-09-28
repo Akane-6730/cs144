@@ -23,7 +23,7 @@ using namespace std;
 
 TunTapFD::TunTapFD(const string &devname, const bool is_tun)
     : FileDescriptor(SystemCall("open", open(CLONEDEV, O_RDWR))) {
-    struct ifreq tun_req {};
+    struct ifreq tun_req{};
 
     tun_req.ifr_flags = (is_tun ? IFF_TUN : IFF_TAP) | IFF_NO_PI;  // tun device with no packetinfo
 

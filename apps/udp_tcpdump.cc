@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
 
     // compile and set filter
     {
-        struct bpf_program p_flt {};
+        struct bpf_program p_flt{};
         stringstream f_stream;
         for (int i = exp_start; i < argc; ++i) {
             f_stream << argv[i] << ' ';
