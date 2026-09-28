@@ -2,6 +2,7 @@
 #define SPONGE_LIBSPONGE_BUFFER_HH
 
 #include <algorithm>
+#include <cstdint>
 #include <deque>
 #include <memory>
 #include <numeric>
