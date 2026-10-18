@@ -1,5 +1,9 @@
 #include "router.hh"
 
+#include "ipv4_header.hh"
+#include "util.hh"
+
+#include <cstdint>
 #include <iostream>
 
 using namespace std;
@@ -26,17 +30,37 @@ void Router::add_route(const uint32_t route_prefix,
                        const uint8_t prefix_length,
                        const optional<Address> next_hop,
                        const size_t interface_num) {
-    cerr << "DEBUG: adding route " << Address::from_ipv4_numeric(route_prefix).ip() << "/" << int(prefix_length)
-         << " => " << (next_hop.has_value() ? next_hop->ip() : "(direct)") << " on interface " << interface_num << "\n";
-
-    DUMMY_CODE(route_prefix, prefix_length, next_hop, interface_num);
-    // Your code here.
+    _routing_table.push_back({route_prefix, prefix_length, next_hop, interface_num});
 }
 
 //! \param[in] dgram The datagram to be routed
 void Router::route_one_datagram(InternetDatagram &dgram) {
-    DUMMY_CODE(dgram);
-    // Your code here.
+    IPv4Header &header = dgram.header();
+    if (header.ttl <= 1)
+        return;
+    header.ttl--;
+
+    // Recompute the header checksum after changing the TTL.
+    header.cksum = 0;
+    const auto serialized_header = header.serialize();
+    InternetChecksum check;
+    check.add(serialized_header);
+    header.cksum = check.value();
+
+    Route *best_route = nullptr;
+    for (auto &route : _routing_table) {
+        if (route.prefix_length == 0 || ((header.dst ^ route.route_prefix) >> (32 - route.prefix_length)) == 0) {
+            if (best_route == nullptr || route.prefix_length > best_route->prefix_length) {
+                best_route = &route;
+            }
+        }
+    }
+
+    if (best_route != nullptr) {
+        Address next_hop =
+            best_route->next_hop.has_value() ? best_route->next_hop.value() : Address::from_ipv4_numeric(header.dst);
+        _interfaces.at(best_route->interface_num).send_datagram(dgram, next_hop);
+    }
 }
 
 void Router::route() {
