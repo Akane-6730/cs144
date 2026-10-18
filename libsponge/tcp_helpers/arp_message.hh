@@ -28,6 +28,18 @@ struct ARPMessage {
     uint32_t target_ip_address{};
     //!@}
 
+    ARPMessage() = default;
+    ARPMessage(const uint16_t opcode_value,
+               const EthernetAddress sender_eth,
+               const uint32_t sender_ip,
+               const EthernetAddress target_eth,
+               const uint32_t target_ip)
+        : opcode(opcode_value)
+        , sender_ethernet_address(sender_eth)
+        , sender_ip_address(sender_ip)
+        , target_ethernet_address(target_eth)
+        , target_ip_address(target_ip) {}
+
     //! Parse the ARP message from a string
     ParseResult parse(const Buffer buffer);
 

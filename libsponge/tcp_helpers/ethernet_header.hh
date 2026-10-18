@@ -4,6 +4,7 @@
 #include "parser.hh"
 
 #include <array>
+#include <cstdint>
 
 //! Helper type for an Ethernet address (an array of six bytes)
 using EthernetAddress = std::array<uint8_t, 6>;
@@ -26,6 +27,10 @@ struct EthernetHeader {
     EthernetAddress src;
     uint16_t type;
     //!@}
+
+    EthernetHeader() = default;
+    EthernetHeader(EthernetAddress dst_addr, EthernetAddress src_addr, uint16_t frame_type)
+        : dst(dst_addr), src(src_addr), type(frame_type) {}
 
     //! Parse the Ethernet fields from the provided NetParser
     ParseResult parse(NetParser &p);

@@ -4,6 +4,8 @@
 #include "buffer.hh"
 #include "ethernet_header.hh"
 
+#include <cstdint>
+
 //! \brief Ethernet frame
 class EthernetFrame {
   private:
@@ -25,6 +27,10 @@ class EthernetFrame {
     const BufferList &payload() const { return _payload; }
     BufferList &payload() { return _payload; }
     //!@}
+
+    EthernetFrame() = default;
+    EthernetFrame(EthernetAddress dst, EthernetAddress src, uint16_t type, BufferList payload)
+        : _header(dst, src, type), _payload(payload) {}
 };
 
 #endif  // SPONGE_LIBSPONGE_ETHERNET_FRAME_HH
